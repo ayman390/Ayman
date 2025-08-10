@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Luggage Share</title>
+  <link rel="icon" href="assets/icon.png">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <img src="assets/icon.png" alt="Luggage Share" class="logo">
+      <h1>Luggage Share</h1>
+    </div>
+    <nav class="top-nav">
+      <button class="nav-btn" data-view="authView">الدخول</button>
+      <button class="nav-btn" data-view="seekerView">مستخدم يحتاج وزن</button>
+      <button class="nav-btn" data-view="carrierView">مستخدم لديه وزن إضافي</button>
+      <button class="nav-btn" data-view="adminView">لوحة تحكم المشرف</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Authentication / Profile -->
+    <section id="authView" class="view active">
+      <div class="card">
+        <h2>تسجيل / الدخول</h2>
+        <p class="muted">اختر نوع حسابك وأدخل اسم العرض (اسمك الظاهر).</p>
+        <div class="grid two">
+          <div>
+            <label>نوع الحساب</label>
+            <select id="roleSelect">
+              <option value="seeker">محتاج وزن (Seeker)</option>
+              <option value="carrier">لدي وزن إضافي (Carrier)</option>
+              <option value="admin">مشرف (Admin)</option>
+            </select>
+          </div>
+          <div>
+            <label>الاسم الظاهر</label>
+            <input id="displayName" placeholder="اسمك">
+          </div>
+        </div>
+        <div class="grid two">
+          <div>
+            <label>صورة الملف الشخصي</label>
+            <input type="file" id="profilePhoto" accept="image/*">
+          </div>
+          <div class="profile-preview">
+            <img id="profilePhotoPreview" alt="preview">
+          </div>
+        </div>
+        <button id="btnLogin" class="primary">دخول</button>
+        <p class="muted small">المعلومات تُحفظ داخل هذا المتصفح فقط (localStorage).</p>
+      </div>
+
+      <div class="card">
+        <h3>ملفي الشخصي</h3>
+        <div id="myProfile"></div>
+      </div>
+    </section>
+
+    <!-- Seeker View -->
+    <section id="seekerView" class="view">
+      <div class="card">
+        <h2>لوحة مستخدم يحتاج وزن</h2>
+        <p>السعر ثابت: <b>40</b> درهم لكل كيلوجرام. عمولة المشرف: <b>19</b> درهم/كجم. استلام الحامل: <b>21</b> درهم/كجم.</p>
+        <div class="grid two">
+          <div>
+            <label>من (المطار/المدينة)</label>
+            <input id="seekFrom" placeholder="AUH, DXB, ...">
+          </div>
+          <div>
+            <label>إلى (المطار/المدينة)</label>
+            <input id="seekTo" placeholder="JED, CAI, ...">
+          </div>
+          <div>
+            <label>رقم الرحلة</label>
+            <input id="seekFlight" placeholder="EY123">
+          </div>
+          <div>
+            <label>تاريخ الرحلة</label>
+            <input id="seekDate" type="date">
+          </div>
+          <div>
+            <label>الوزن المطلوب (كجم)</label>
+            <input id="seekKg" type="number" min="1" value="5">
+          </div>
+          <div>
+            <label>المبلغ الإجمالي (درهم)</label>
+            <input id="seekTotal" type="number" readonly>
+          </div>
+        </div>
+
+        <h3>مستندات الهوية</h3>
+        <div class="grid three">
+          <div class="upload">
+            <label>جواز السفر</label>
+            <input type="file" id="seekPassport" accept="image/*,application/pdf">
+            <div class="thumb" id="seekPassportPrev"></div>
+          </div>
+          <div class="upload">
+            <label>الهوية</label>
+            <input type="file" id="seekID" accept="image/*,application/pdf">
+            <div class="thumb" id="seekIDPrev"></div>
+          </div>
+          <div class="upload">
+            <label>صورة شخصية</label>
+            <input type="file" id="seekPhoto" accept="image/*">
+            <div class="thumb" id="seekPhotoPrev"></div>
+          </div>
+        </div>
+
+        <button id="btnSeekPost" class="primary">نشر طلب الوزن</button>
+      </div>
+
+      <div class="card">
+        <h3>عروض الحَمَلة المطابقة</h3>
+        <div id="matchingCarriers" class="list"></div>
+      </div>
+
+      <div class="card">
+        <h3>اتفاقياتي</h3>
+        <div id="seekerDeals" class="list"></div>
+      </div>
+    </section>
+
+    <!-- Carrier View -->
+    <section id="carrierView" class="view">
+      <div class="card">
+        <h2>لوحة مستخدم لديه وزن إضافي</h2>
+        <p>السعر ثابت: <b>40</b> درهم/كجم. عمولة المشرف: <b>19</b> درهم/كجم. ربحك: <b>21</b> درهم/كجم.</p>
+        <div class="grid two">
+          <div>
+            <label>من (المطار/المدينة)</label>
+            <input id="carFrom" placeholder="AUH, DXB, ...">
+          </div>
+          <div>
+            <label>إلى (المطار/المدينة)</label>
+            <input id="carTo" placeholder="JED, CAI, ...">
+          </div>
+          <div>
+            <label>رقم الرحلة</label>
+            <input id="carFlight" placeholder="EY123">
+          </div>
+          <div>
+            <label>تاريخ الرحلة</label>
+            <input id="carDate" type="date">
+          </div>
+          <div>
+            <label>الوزن المتاح (كجم)</label>
+            <input id="carKg" type="number" min="1" value="10">
+          </div>
+          <div>
+            <label>عائدك المتوقع (درهم)</label>
+            <input id="carRevenue" type="number" readonly>
+          </div>
+        </div>
+
+        <h3>مستندات الهوية</h3>
+        <div class="grid three">
+          <div class="upload">
+            <label>جواز السفر</label>
+            <input type="file" id="carPassport" accept="image/*,application/pdf">
+            <div class="thumb" id="carPassportPrev"></div>
+          </div>
+          <div class="upload">
+            <label>الهوية</label>
+            <input type="file" id="carID" accept="image/*,application/pdf">
+            <div class="thumb" id="carIDPrev"></div>
+          </div>
+          <div class="upload">
+            <label>صورة شخصية</label>
+            <input type="file" id="carPhoto" accept="image/*">
+            <div class="thumb" id="carPhotoPrev"></div>
+          </div>
+        </div>
+
+        <button id="btnCarPost" class="primary">نشر عرض الوزن</button>
+      </div>
+
+      <div class="card">
+        <h3>طلبات الباحثين المطابقة</h3>
+        <div id="matchingSeekers" class="list"></div>
+      </div>
+
+      <div class="card">
+        <h3>اتفاقاتي</h3>
+        <div id="carrierDeals" class="list"></div>
+      </div>
+    </section>
+
+    <!-- Admin View -->
+    <section id="adminView" class="view">
+      <div class="card">
+        <h2>لوحة تحكم المشرف</h2>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-number" id="statUsers">0</div>
+            <div class="stat-label">عدد المستخدمين</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number" id="statDeals">0</div>
+            <div class="stat-label">عدد الاتفاقيات</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number" id="statRevenue">0</div>
+            <div class="stat-label">إجمالي عمولة المشرف (درهم)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>طلبات وعروض</h3>
+        <div class="grid two">
+          <div>
+            <h4>طلبات (Seekers)</h4>
+            <div id="adminSeekers" class="list"></div>
+          </div>
+          <div>
+            <h4>عروض (Carriers)</h4>
+            <div id="adminCarriers" class="list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>الاتفاقيات</h3>
+        <div id="adminDeals" class="list"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Chat Modal -->
+  <div id="chatModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>المحادثة</h3>
+        <button id="closeChat">×</button>
+      </div>
+      <div class="chat-body" id="chatBody"></div>
+      <div class="chat-input">
+        <input id="chatText" placeholder="اكتب رسالة...">
+        <button id="sendChat" class="primary">إرسال</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <canvas id="dealProgress" width="600" height="80"></canvas>
+    <p class="muted small">مؤشر التتبع (Canvas): اختر اتفاقية لعرض تقدمها.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
